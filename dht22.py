@@ -20,11 +20,11 @@ def write_db(tmp, hum, device_id):
         {
             "measurement": "temperature",
             "tags": {
-                "device_id": device_id,
+                "device_id": str(device_id),
             },
             "fields": {
-                "celcius": '{0:0.2f}'.format(tmp),
-                "humidity": '{0:0.2f}'.format(hum),
+                "celcius": str('{0:0.2f}'.format(tmp)),
+                "humidity": str('{0:0.2f}'.format(hum)),
             }
         }
   ]
