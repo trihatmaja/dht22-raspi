@@ -2,16 +2,28 @@ import Adafruit_DHT as dht
 import time
 from influxdb import InfluxDBClient
 
-def writeDB(tmp, hum):
+def get_serial():
+    cpu_serial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo', 'r')
+        for line in f:
+            if line[0:6] == 'Serial':
+                cpu_serial = line[10:26]
+        f.close()
+    except:
+        cpu_serial = "ERROR000000000"
+
+    return cpu_serial
+
+def write_db(tmp, hum, device_id):
   json_body = [
         {
-            "measurement": "temperature_humidity",
+            "measurement": "temperature",
             "tags": {
-                "host": "10.10.1.100",
-                "datacenter": "DC-1"
+                "device_id": device_id,
             },
             "fields": {
-                "temperature": '{0:0.2f}'.format(tmp),
+                "celcius": '{0:0.2f}'.format(tmp),
                 "humidity": '{0:0.2f}'.format(hum),
             }
         }
@@ -21,9 +33,10 @@ def writeDB(tmp, hum):
   client.write_points(json_body)
 
 def main():
+    device_id = get_serial()
     while True:
 	h,t = dht.read_retry(dht.DHT22, 4)
-	writeDB(t, h)
+	write_db(t, h, device_id)
 	print ('Temp={0:0.2f}*C  Humidity={1:0.2f}%'.format(t, h))
 	time.sleep(5)
 
